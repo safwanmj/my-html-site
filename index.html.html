@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Activity Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .folder, .button {
+            cursor: pointer;
+            padding: 12px;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .folder:hover, .button:hover {
+            transform: translateY(-3px);
+        }
+
+        .folder.hq { background-color: #333; } /* Dark grey */
+        .folder.kerteh { background-color: #555; } /* Medium grey */
+        .folder.sabah { background-color: #777; } /* Light grey */
+        .folder.sarawak { background-color: #999; } /* Lighter grey */
+        .folder.johor { background-color: #bbb; } /* Very light grey */
+
+        .button {
+            background-color: #000; /* Black */
+            color: #fff;
+            text-align: center; /* Center text inside the button */
+            display: inline-block; /* Ensure the button is inline-block for centering */
+            width: auto; /* Set to auto for centering */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        form input, form select, form textarea {
+            margin: 10px 0;
+            padding: 12px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            color: #333;
+            font-size: 1em;
+        }
+
+        form button {
+            padding: 12px;
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1em;
+        }
+
+        form button:hover {
+            background-color: #218838;
+            transform: translateY(-3px);
+        }
+
+        .staff-list {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            max-height: 100px;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .message {
+            color: #28a745;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .summary-report {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app-container">
+        <img src="Axis.jpeg" alt="Company Logo" style="max-width: 150px; margin-bottom: 20px;">
+        <h1>Maintenance and Service Staff Activity</h1>
+
+        <div id="Group-selection">
+            <h2>Please Select Group</h2> <!-- Updated label -->
+            <div class="folder hq" onclick="showActivityLog('hq')">Axis HQ</div>
+            <div class="folder kerteh" onclick="showActivityLog('kerteh')">Axis Kerteh</div>
+            <div class="folder sabah" onclick="showActivityLog('sabah')">Axis Sabah</div>
+            <div class="folder sarawak" onclick="showActivityLog('sarawak')">Axis Sarawak</div>
+            <div class="folder johor" onclick="showActivityLog('johor')">Axis Johor</div>
+            <div class="center"> <!-- Centering the button container -->
+                <button class="button" id="summary-button" onclick="showSummarySelection()">View Monthly Summary</button>
+            </div>
+        </div>
+
+        <div id="activity-log" class="hidden">
+            <h2 id="section-title"></h2>
+            <h3>Add Activity</h3>
+            <form id="activity-form">
+                <label for="staff-select">Select Staff:</label>
+                <select id="staff-select" required>
+                    <option value="">Select Staff</option>
+                </select>
+                <button type="button" onclick="addStaff()">Add Staff</button>
+                <div id="staff-list" class="staff-list">
+                    <strong>Selected Staff:</strong>
+                    <ul id="selected-staff-list"></ul>
+                </div>
+
+                <label for="activity-description">Activity Description:</label>
+                <select id="activity-description" required onchange="toggleManualInput()">
+                    <option value="">Select Activity Description</option>
+                    <option value="Preventive Maintenance">Preventive Maintenance</option>
+                    <option value="Corrective Maintenance">Corrective Maintenance</option>
+                    <option value="Others">Others</option>
+                </select>
+                <input type="text" id="manual-description" placeholder="Enter activity description" class="hidden">
+
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start-date" required>
+                
+                <label for="end-date">End Date:</label>
+                <input type="date" id="end-date">
+
+                <label for="notes">Notes:</label>
+                <textarea id="notes" placeholder="Notes"></textarea>
+                <button type="submit">Add Activity</button>
+                <div class="message" id="message"></div>
+            </form>
+            <button class="button center" onclick="goBack()">Back to Group Selection</button>
+        </div>
+
+        <div id="summary-selection" class="hidden">
+            <h2>Monthly Summary Report</h2>
+            <label for="summary-month">Select Month:</label>
+            <input type="month" id="summary-month" onchange="generateSummary()">
+            <div id="summary-report" class="summary-report hidden"></div>
+            <button class="button" id="download-button" onclick="downloadExcel()">Download Excel</button>
+            <button class="button center" onclick="goBackToSummary()">Back to Group Selection</button>
+        </div>
+    </div>
+
+    <script>
+        const staffData = {
+            'hq': ['Hamid', 'Rukimin', 'Safwan', 'Siti', 'Wanni', 'Nazam', 'Azren', 'Azri'],
+            'kerteh': ['Arif', 'Izzat', 'Faaiz', 'Farizwan'],
+            'sabah': ['Hamsyah', 'Faizal', 'Airil'],
+            'sarawak': ['Zaina', 'Theddeus', 'Jimmy'],
+            'johor': ['Syafiq', 'Arif Alzari']
+        };
+
+        let currentSection = '';
+        let selectedStaff = [];
+        let activities = []; // Array to store activities
+
+        function showActivityLog(section) {
+            currentSection = section;
+            document.getElementById('section-title').innerText = `Activity Log - ${getSectionName(section)}`;
+            loadStaffOptions(section);
+            toggleVisibility('Group-selection', 'activity-log');
+        }
+
+        function loadStaffOptions(section) {
+            const staffSelect = document.getElementById('staff-select');
+            staffSelect.innerHTML = '<option value="">Select Staff</option>';
+            staffData[section].forEach(staff => {
+                const option = document.createElement('option');
+                option.value = staff;
+                option.textContent = staff;
+                staffSelect.appendChild(option);
+            });
+        }
+
+        function addStaff() {
+            const staffSelect = document.getElementById('staff-select');
+            const selectedValue = staffSelect.value;
+
+            if (selectedValue && !selectedStaff.includes(selectedValue)) {
+                selectedStaff.push(selectedValue);
+                updateStaffList();
+            }
+        }
+
+        function updateStaffList() {
+            const staffListElement = document.getElementById('selected-staff-list');
+            staffListElement.innerHTML = selectedStaff.map(staff => `<li>${staff}</li>`).join('');
+        }
+
+        function goBack() {
+            toggleVisibility('activity-log', 'Group-selection');
+        }
+
+        function toggleManualInput() {
+            const manualDescription = document.getElementById('manual-description');
+            const activityDescription = document.getElementById('activity-description').value;
+            manualDescription.classList.toggle('hidden', activityDescription !== 'Others');
+        }
+
+        function toggleVisibility(hideElementId, showElementId) {
+            document.getElementById(hideElementId).classList.add('hidden');
+            document.getElementById(showElementId).classList.remove('hidden');
+        }
+
+        document.getElementById('activity-form').onsubmit = function(event) {
+            event.preventDefault();
+
+            if (selectedStaff.length === 0) {
+                document.getElementById('message').innerText = "Please select at least one staff member.";
+                return;
+            }
+
+            let description = document.getElementById('activity-description').value;
+            const manualDescription = document.getElementById('manual-description').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value || startDate;
+            const notes = document.getElementById('notes').value;
+
+            if (description === 'Others') {
+                description = manualDescription;
+            }
+
+            // Store activity data
+            activities.push({
+                staff: selectedStaff.join(', '),
+                description,
+                startDate,
+                endDate,
+                notes
+            });
+
+            document.getElementById('message').innerText = `Activity added successfully for staff: ${selectedStaff.join(', ')}`;
+            document.getElementById('activity-form').reset();
+            selectedStaff = [];
+            updateStaffList();
+        };
+
+        function showSummarySelection() {
+            toggleVisibility('Group-selection', 'summary-selection');
+        }
+
+        function goBackToSummary() {
+            toggleVisibility('summary-selection', 'Group-selection');
+        }
+
+        function generateSummary() {
+            const month = document.getElementById('summary-month').value;
+            const report = document.getElementById('summary-report');
+            report.innerHTML = ''; // Clear previous summary
+
+            if (activities.length === 0) {
+                report.innerHTML = "No activities recorded for this month.";
+            } else {
+                // Create table for summary
+                let table = `<table>
+                                <tr>
+                                    <th>Staff</th>
+                                    <th>Description</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Notes</th>
+                                </tr>`;
+
+                activities.forEach(activity => {
+                    table += `<tr>
+                                <td>${activity.staff}</td>
+                                <td>${activity.description}</td>
+                                <td>${activity.startDate}</td>
+                                <td>${activity.endDate}</td>
+                                <td>${activity.notes}</td>
+                               </tr>`;
+                });
+
+                table += `</table>`;
+                report.innerHTML = table; // Insert table into report
+            }
+
+            report.classList.remove('hidden');
+            document.getElementById('download-button').classList.remove('hidden');
+        }
+
+        function downloadExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Staff,Description,Start Date,End Date,Notes\n"; // Header
+
+            activities.forEach(activity => {
+                const row = `${activity.staff},${activity.description},${activity.startDate},${activity.endDate},${activity.notes}`;
+                csvContent += row + "\n"; // Add each activity as a new row
+            });
+
+            // Encode the URI and create a downloadable link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "activities_summary.csv");
+            document.body.appendChild(link); // Required for FF
+
+            link.click(); // Trigger the download
+            document.body.removeChild(link); // Remove the link after triggering
+        }
+
+        function getSectionName(section) {
+            const names = {
+                'hq': 'Axis HQ',
+                'kerteh': 'Axis Kerteh',
+                'sabah': 'Axis Sabah',
+                'sarawak': 'Axis Sarawak',
+                'johor': 'Axis Johor'
+            };
+            return names[section];
+        }
+    </script>
+</body>
+</html>
